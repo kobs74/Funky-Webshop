@@ -1,0 +1,23 @@
+# Port of the config in app/__init__.py
+server:
+  port: 10088
+  servlet:
+    session:
+      cookie:
+        name: session
+
+keyscout:
+  instance-path: ${KEYSCOUT_INSTANCE_PATH:/workdir/instance}
+  govapi-binary: ${KEYSCOUT_GOVAPI_BINARY:/workdir/app/govapi/binary}
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://template-service-db:5432/vulndb}
+    username: ${DB_USER:dbuser}
+    password: ${DB_PASSWORD:superSecret}
+  jpa:
+    hibernate:
+      ddl-auto: update          # same as db.create_all()
+    open-in-view: false
+  thymeleaf:
+    cache: true

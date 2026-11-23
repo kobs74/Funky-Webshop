@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{general}">
+<head>
+    <title>Browse Games - KeyScout24</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <section class="games-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" class="breadcrumb-link">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Games</span>
+            </div>
+            <div class="header-content">
+                <div>
+                    <h1 class="header-title">Browse All Games</h1>
+                    <p class="header-subtitle">Discover amazing deals on game keys for all major platforms</p>
+                </div>
+                <th:block th:if="${currentUser != null}">
+                    <a href="/game/add" class="btn btn-primary">
+                        <span>+ Sell Your Game</span>
+                    </a>
+                </th:block>
+            </div>
+        </div>
+    </section>
+
+    <section class="games-section">
+        <div class="container">
+            <th:block th:if="${not #lists.isEmpty(games)}">
+                <div class="grid grid-4">
+                    <th:block th:each="game : ${games}">
+                        <div class="card game-card">
+                            <div class="game-image">
+                                <th:block th:if="${game.discount}">
+                                    <div class="game-badge">SALE</div>
+                                </th:block>
+                                <div class="game-placeholder">🎮</div>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="game-title">[[${game.name}]]</h3>
+                                <p class="game-platform">[[${game.platform}]] • [[${game.store}]]</p>
+                                <th:block th:if="${game.description != null and game.description != ''}">
+                                    <p class="game-description">[[${game.description}]]</p>
+                                </th:block>
+                                <div class="game-price">
+                                    <th:block th:if="${game.discount}">
+                                        <span class="price-old">$[[${#numbers.formatDecimal(game.price * 1.4, 1, 'NONE', 2, 'POINT')}]]</span>
+                                    </th:block>
+                                    <span class="price-new">$[[${#numbers.formatDecimal(game.price, 1, 'NONE', 2, 'POINT')}]]</span>
+                                </div>
+                                <a th:href="|/game/${game.id}|"
+                                   class="btn btn-primary btn-block mt-2">View Details</a>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+
+                <th:block th:if="${total_pages > 1}">
+                    <div class="pagination-wrapper">
+                        <th:block th:if="${page > 1}">
+                            <a th:href="|/game/list?page=${page - 1}|" class="pagination-btn">
+                                ← Previous
+                            </a>
+                        </th:block><th:block th:if="${!(page > 1)}">
+                            <span class="pagination-btn pagination-btn-disabled">← Previous</span>
+                        </th:block>
+
+                        <div class="pagination-numbers">
+                            <th:block th:each="p : ${#numbers.sequence(1, total_pages)}">
+                                <th:block th:if="${p == page}">
+                                    <span class="pagination-number pagination-active">[[${p}]]</span>
+                                </th:block><th:block th:if="${!(p == page) and (p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2))}">
+                                    <a th:href="|/game/list?page=${p}|"
+                                       class="pagination-number">[[${p}]]</a>
+                                </th:block><th:block th:if="${!(p == page) and !(p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2)) and (p == page - 3 or p == page + 3)}">
+                                    <span class="pagination-dots">...</span>
+                                </th:block>
+                            </th:block>
+                        </div>
+
+                        <th:block th:if="${page < total_pages}">
+                            <a th:href="|/game/list?page=${page + 1}|" class="pagination-btn">
+                                Next →
+                            </a>
+                        </th:block><th:block th:if="${!(page < total_pages)}">
+                            <span class="pagination-btn pagination-btn-disabled">Next →</span>
+                        </th:block>
+                    </div>
+                </th:block>
+            </th:block><th:block th:if="${!(not #lists.isEmpty(games))}">
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <h2>No Games Available</h2>
+                    <p class="text-secondary">Check back soon for new game keys!</p>
+                </div>
+            </th:block>
+        </div>
+    </section>
+
+    <style>
+
+    </style>
+</th:block>
+</body>
+</html>

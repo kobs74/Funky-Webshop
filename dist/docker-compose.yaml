@@ -1,0 +1,36 @@
+volumes:
+  postgres_data:
+    driver: local
+  instance_data:
+    driver: local
+
+services:
+  template-service-web:
+    build: web
+    restart: unless-stopped
+    ports:
+      - "10088:10088"
+    depends_on:
+      template-service-db:
+        condition: service_healthy
+    volumes:
+      - instance_data:/workdir/instance
+
+  template-service-db:
+    image: postgres:18.1-alpine3.22
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_DB=vulndb
+      - POSTGRES_PASSWORD=superSecret
+    expose:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dbuser -d vulndb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+

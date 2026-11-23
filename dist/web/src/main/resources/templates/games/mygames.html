@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{general}">
+<head>
+    <title>My Games - KeyScout24</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <section class="games-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" class="breadcrumb-link">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">My Games</span>
+            </div>
+            <div class="header-content">
+                <div>
+                    <h1 class="header-title">My Games</h1>
+                    <p class="header-subtitle">Manage all the games you're selling</p>
+                </div>
+                <a href="/game/add" class="btn btn-primary">
+                    <span>+ Add New Game</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="games-section">
+        <div class="container">
+            <th:block th:if="${total_games > 0}">
+                <div class="games-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-info">
+                            <div class="stat-value">[[${total_games}]]</div>
+                            <div class="stat-label">Total Games</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-value">$[[${#numbers.formatDecimal(total_value, 1, 'NONE', 2, 'POINT')}]]</div>
+                            <div class="stat-label">Total Value</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-info">
+                            <div class="stat-value">[[${discount_count}]]</div>
+                            <div class="stat-label">On Sale</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-4">
+                    <th:block th:each="game : ${games}">
+                        <div class="card game-card my-game-card">
+                            <div class="game-image">
+                                <th:block th:if="${game.discount}">
+                                    <div class="game-badge">SALE</div>
+                                </th:block>
+                                <div class="game-placeholder">🎮</div>
+                                <div class="my-game-overlay">
+                                    <span class="my-game-label">Your Game</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="game-title">[[${game.name}]]</h3>
+                                <p class="game-platform">[[${game.platform}]] • [[${game.store}]]</p>
+                                <th:block th:if="${game.description != null and game.description != ''}">
+                                    <p class="game-description">[[${game.description}]]</p>
+                                </th:block>
+                                <div class="game-price">
+                                    <th:block th:if="${game.discount}">
+                                        <span class="price-old">$[[${#numbers.formatDecimal(game.price * 1.4, 1, 'NONE', 2, 'POINT')}]]</span>
+                                    </th:block>
+                                    <span class="price-new">$[[${#numbers.formatDecimal(game.price, 1, 'NONE', 2, 'POINT')}]]</span>
+                                </div>
+                                <div class="game-actions">
+                                    <a th:link-for-game="${game.name}"
+                                       th:href="|/game/${game.id}|"
+                                       class="btn btn-secondary btn-block mt-2">
+                                        View Details
+                                    </a>
+                                    <button class="btn btn-primary btn-block mt-2"
+                                            th:data-game-id="${game.id}" th:data-game-name="${game.name}"
+                                            onclick="openGiftCodeModal(this.dataset.gameId, this.dataset.gameName)">
+                                        🎁 Create Gift Code
+                                    </button>
+                                    <button class="btn btn-secondary btn-block mt-2"
+                                            th:data-game-id="${game.id}" th:data-game-name="${game.name}"
+                                            onclick="checkGameKey(this.dataset.gameId, this.dataset.gameName)">
+                                        🔑 Check Key
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+
+                <th:block th:if="${total_pages > 1}">
+                    <div class="pagination-wrapper">
+                        <th:block th:if="${page > 1}">
+                            <a th:href="|/game/my-games?page=${page - 1}|" class="pagination-btn">
+                                ← Previous
+                            </a>
+                        </th:block><th:block th:if="${!(page > 1)}">
+                            <span class="pagination-btn pagination-btn-disabled">← Previous</span>
+                        </th:block>
+
+                        <div class="pagination-numbers">
+                            <th:block th:each="p : ${#numbers.sequence(1, total_pages)}">
+                                <th:block th:if="${p == page}">
+                                    <span class="pagination-number pagination-active">[[${p}]]</span>
+                                </th:block><th:block th:if="${!(p == page) and (p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2))}">
+                                    <a th:href="|/game/my-games?page=${p}|"
+                                       class="pagination-number">[[${p}]]</a>
+                                </th:block><th:block th:if="${!(p == page) and !(p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2)) and (p == page - 3 or p == page + 3)}">
+                                    <span class="pagination-dots">...</span>
+                                </th:block>
+                            </th:block>
+                        </div>
+
+                        <th:block th:if="${page < total_pages}">
+                            <a th:href="|/game/my-games?page=${page + 1}|" class="pagination-btn">
+                                Next →
+                            </a>
+                        </th:block><th:block th:if="${!(page < total_pages)}">
+                            <span class="pagination-btn pagination-btn-disabled">Next →</span>
+                        </th:block>
+                    </div>
+                </th:block>
+            </th:block><th:block th:if="${!(total_games > 0)}">
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <h2>No Games Yet</h2>
+                    <p class="text-secondary">You haven't added any games for sale yet.</p>
+                    <a href="/game/add" class="btn btn-primary btn-lg mt-3">
+                        + Add Your First Game
+                    </a>
+                </div>
+            </th:block>
+        </div>
+    </section>
+
+    <div id="giftCodeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Gift Code</h2>
+                <button class="modal-close" onclick="closeGiftCodeModal()">&times;</button>
+            </div>
+            <form id="giftCodeForm" method="POST">
+                <div class="modal-body">
+                    <p class="modal-description">Create a gift code for <strong id="gameNameDisplay"></strong></p>
+
+                    <div class="form-group">
+                        <label class="form-label" for="gift-message">Message for Redeemer (Optional)</label>
+                        <textarea id="gift-message" name="message" class="form-control" rows="4" maxlength="500"
+                                  placeholder="Enter a personal message for the person who redeems this code..."></textarea>
+                        <p class="form-text">This message will be shown when the gift code is redeemed.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeGiftCodeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">🎁 Create Gift Code</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="keyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Game Key</h2>
+                <button class="modal-close" onclick="closeKeyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Key for <strong id="keyGameNameDisplay"></strong></p>
+
+                <div class="key-display-container">
+                    <div class="key-display" id="keyDisplay">Loading...</div>
+                    <button class="btn btn-secondary btn-sm" onclick="copyKeyToClipboard()">
+                        📋 Copy Key
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeKeyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+
+    </style>
+
+    <script>
+        let currentGameId = null;
+
+        function openGiftCodeModal(gameId, gameName) {
+            currentGameId = gameId;
+            document.getElementById('gameNameDisplay').textContent = gameName;
+            document.getElementById('gift-message').value = '';
+
+            const modal = document.getElementById('giftCodeModal');
+            modal.classList.add('active');
+
+            const form = document.getElementById('giftCodeForm');
+            form.action = `/game/${gameId}/gift-code`;
+        }
+
+        function closeGiftCodeModal() {
+            const modal = document.getElementById('giftCodeModal');
+            modal.classList.remove('active');
+            currentGameId = null;
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('giftCodeModal');
+            if (event.target === modal) {
+                closeGiftCodeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeGiftCodeModal();
+                closeKeyModal();
+            }
+        });
+
+        function checkGameKey(gameId, gameName) {
+            document.getElementById('keyGameNameDisplay').textContent = gameName;
+            const keyDisplay = document.getElementById('keyDisplay');
+            keyDisplay.textContent = 'Loading...';
+            keyDisplay.className = 'key-display loading';
+
+            const modal = document.getElementById('keyModal');
+            modal.classList.add('active');
+
+            fetch(`/game/${gameId}/key`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to fetch key');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    keyDisplay.textContent = data.key;
+                    keyDisplay.className = 'key-display';
+                })
+                .catch(error => {
+                    keyDisplay.textContent = error.message || 'Error loading key';
+                    keyDisplay.className = 'key-display error';
+                });
+        }
+
+        function closeKeyModal() {
+            const modal = document.getElementById('keyModal');
+            modal.classList.remove('active');
+        }
+
+        function copyKeyToClipboard() {
+            const keyDisplay = document.getElementById('keyDisplay');
+            const key = keyDisplay.textContent;
+
+            if (key && key !== 'Loading...' && !key.includes('Error')) {
+                navigator.clipboard.writeText(key).then(() => {
+                    const originalText = keyDisplay.textContent;
+                    keyDisplay.textContent = '✓ Copied!';
+                    setTimeout(() => {
+                        keyDisplay.textContent = originalText;
+                    }, 1500);
+                }).catch(err => {
+                    alert('Failed to copy key to clipboard');
+                });
+            }
+        }
+
+        window.onclick = function (event) {
+            const giftModal = document.getElementById('giftCodeModal');
+            const keyModal = document.getElementById('keyModal');
+
+            if (event.target === giftModal) {
+                closeGiftCodeModal();
+            }
+            if (event.target === keyModal) {
+                closeKeyModal();
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>

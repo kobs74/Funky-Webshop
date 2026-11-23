@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyScout24 Shop</title>
+
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/classes.css">
+
+    <link rel="icon" href="/svg/key-management-service-svgrepo-com.svg"
+          type="image/svg+xml">
+
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-content">
+            <a href="/" class="navbar-brand">
+                <img src="/svg/key-management-service-svgrepo-com.svg"
+                     alt="KeyScout24 Logo" class="brand-logo">
+                <span class="brand-text">KeyScout24</span>
+            </a>
+
+            <div class="navbar-menu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/game/list" class="nav-link">Games</a>
+                <a th:if="${currentUser != null}" href="/game/my-games" class="nav-link">My Games</a>
+                <a href="/support/tickets" class="nav-link">Support</a>
+            </div>
+
+            <div class="navbar-actions">
+                <th:block th:if="${currentUser != null}">
+                    <a href="/cart" class="nav-link cart-link">
+                        <span>🛒 Cart</span>
+                        <span th:if="${cartCount > 0}" class="cart-badge" th:text="${cartCount}"></span>
+                    </a>
+                    <a href="/profile" class="nav-link">
+                        <span>👤 [[${currentUser.username}]]</span>
+                    </a>
+                    <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
+                </th:block>
+                <th:block th:unless="${currentUser != null}">
+                    <a href="/login" class="btn btn-sm btn-outline-primary">Login</a>
+                    <a href="/register" class="btn btn-sm btn-primary">Sign Up</a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3" th:if="${flashMessages != null and !#lists.isEmpty(flashMessages)}">
+    <div th:each="flash : ${flashMessages}" th:class="|alert alert-${flash.category}|" th:text="${flash.message}"></div>
+</div>
+
+<main>
+    <th:block layout:fragment="content"></th:block>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/terms-of-service" class="footer-link">Terms of Service</a>
+                <span class="footer-separator">•</span>
+                <a href="/privacy-policy" class="footer-link">Privacy Policy</a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 KeyScout24. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        twemoji.parse(document.body, {
+            folder: 'svg',
+            ext: '.svg'
+        });
+    });
+</script>
+
+<style>
+    main {
+        flex: 1;
+        background: var(--gradient-dark);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar {
+        background: var(--color-bg-secondary);
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--spacing-md) 0;
+        position: sticky;
+        top: 0;
+        z-index: var(--z-index-dropdown);
+        backdrop-filter: blur(10px);
+    }
+
+    .navbar-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing-xl);
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+        text-decoration: none;
+    }
+
+    .brand-logo {
+        height: 32px;
+        width: auto;
+    }
+
+    .brand-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .navbar-menu {
+        display: flex;
+        gap: var(--spacing-lg);
+        flex: 1;
+        justify-content: center;
+    }
+
+    .nav-link {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .nav-link:hover {
+        color: var(--color-primary);
+    }
+
+    .navbar-actions {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    .cart-link {
+        position: relative;
+    }
+
+    .cart-badge {
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        background: var(--color-primary);
+        color: var(--color-text-dark);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+        min-width: 18px;
+        height: 18px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .footer {
+        background: var(--color-bg-secondary);
+        border-top: 1px solid var(--color-border);
+        padding: var(--spacing-xl) 0;
+    }
+
+    .footer-content {
+        text-align: center;
+        color: var(--color-text-muted);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .footer-link {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: var(--font-size-sm);
+        transition: color var(--transition-fast);
+    }
+
+    .footer-link:hover {
+        color: var(--color-primary);
+        text-decoration: underline;
+    }
+
+    .footer-separator {
+        color: var(--color-text-muted);
+        user-select: none;
+    }
+
+    .footer-copyright {
+        margin: 0;
+        font-size: var(--font-size-sm);
+    }
+
+    @media (max-width: 768px) {
+        .navbar-content {
+            flex-wrap: wrap;
+        }
+
+        .navbar-menu {
+            order: 3;
+            width: 100%;
+            justify-content: space-around;
+            margin-top: var(--spacing-md);
+        }
+    }
+</style>
+</body>
+</html>
+
